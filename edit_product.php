@@ -1,5 +1,7 @@
 <?php
 include 'config.php';
+include 'auth.php';
+checkStockManagerOrOwner();
 
 $id = $_GET['id'];
 

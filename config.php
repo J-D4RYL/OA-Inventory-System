@@ -3,8 +3,8 @@ session_start();
 
 $host = "localhost";
 $user = "root";
-$pass = "0000";
-$dbname = "oa_clothing_inventory";
+$pass = "";
+$dbname = "clothing_inventory_db";
 
 $conn = mysqli_connect($host, $user, $pass, $dbname);
 

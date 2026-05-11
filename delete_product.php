@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 include 'auth.php';
-checkOwner();
+checkStockManagerOrOwner();
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
@@ -10,10 +10,10 @@ if (isset($_GET['id'])) {
     $product = mysqli_fetch_assoc($getProduct);
     $productName = $product['product_name'] ?? "Product";
 
-    $delete = mysqli_query($conn, "DELETE FROM products WHERE product_id = '$id'");
+    $delete = mysqli_query($conn, "UPDATE products SET is_deleted = 1 WHERE product_id = '$id'");
 
     if ($delete) {
-        header("Location: products.php?msg=" . urlencode("Product '$productName' deleted successfully!") . "&title=" . urlencode("Product Deleted") . "&type=success");
+        header("Location: products.php?msg=" . urlencode("Product '$productName' moved to deleted products.") . "&title=" . urlencode("Product Deleted") . "&type=success");
         exit;
     } else {
         header("Location: products.php?msg=" . urlencode("Error deleting product.") . "&title=Error&type=error");

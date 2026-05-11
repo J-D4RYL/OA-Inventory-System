@@ -1,7 +1,7 @@
 <?php
 include 'config.php';
 include 'auth.php';
-checkOwner();
+checkStockManagerOrOwner();
 
 $message = "";
 $popupTitle = "";
@@ -52,10 +52,13 @@ if (!empty($search)) {
         SELECT p.*, c.category_name 
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.category_id 
-        WHERE p.product_name LIKE '%$search_safe%'
-        OR c.category_name LIKE '%$search_safe%'
-        OR p.size LIKE '%$search_safe%'
-        OR p.color LIKE '%$search_safe%'
+        WHERE p.is_deleted = 0
+        AND (
+            p.product_name LIKE '%$search_safe%'
+            OR c.category_name LIKE '%$search_safe%'
+            OR p.size LIKE '%$search_safe%'
+            OR p.color LIKE '%$search_safe%'
+        )
         ORDER BY p.product_id DESC
     ");
 
@@ -74,6 +77,7 @@ if (!empty($search)) {
         SELECT p.*, c.category_name 
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.category_id 
+        WHERE p.is_deleted = 0
         ORDER BY p.product_id DESC
     ");
 }

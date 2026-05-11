@@ -1,0 +1,112 @@
+/* ===== CASHIER POS RECEIPT ===== */
+
+.pos-box {
+    background: #f8f9fa;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+}
+
+.receipt-box {
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#receiptContent {
+    background: #fff;
+    color: #222;
+    padding: 20px;
+    border: 1px dashed #999;
+    border-radius: 8px;
+    text-align: left;
+    font-family: "Courier New", monospace;
+}
+
+#receiptContent h3 {
+    text-align: center;
+    margin: 5px 0 12px;
+    font-size: 18px;
+}
+
+#receiptContent p {
+    margin: 6px 0;
+    font-size: 14px;
+}
+
+#receiptContent hr {
+    border: none;
+    border-top: 1px dashed #aaa;
+    margin: 12px 0;
+}
+
+#receiptContent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+#receiptContent th,
+#receiptContent td {
+    border: none;
+    padding: 6px 2px;
+    font-size: 13px;
+}
+
+#receiptContent th {
+    background: none;
+    color: #222;
+    border-bottom: 1px dashed #aaa;
+}
+
+#receiptContent td:last-child,
+#receiptContent th:last-child {
+    text-align: right;
+}
+
+.receipt-box button {
+    margin-top: 12px;
+    width: 48%;
+}
+
+/* Print receipt only */
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #receiptContent,
+    #receiptContent * {
+        visibility: visible;
+    }
+
+    #receiptContent {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        width: 300px;
+        border: none;
+        padding: 10px;
+        background: white;
+        color: black;
+    }
+
+    .popup-box,
+    .popup-overlay {
+        background: white !important;
+        box-shadow: none !important;
+    }
+
+    button,
+    .nav,
+    .container {
+        display: none !important;
+    }
+
+    @page {
+        size: auto;
+        margin: 10mm;
+    }
+}

@@ -3,17 +3,23 @@ include 'config.php';
 include 'auth.php';
 checkStockManagerOrOwner();
 
-$totalProducts = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) AS total FROM products"))['total'];
+$totalProducts = mysqli_fetch_assoc(mysqli_query($conn, "
+    SELECT COUNT(*) AS total 
+    FROM products 
+    WHERE is_deleted = 0
+"))['total'];
 
 $lowStockCount = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT COUNT(*) AS total 
     FROM products 
     WHERE quantity <= low_stock_limit
+    AND is_deleted = 0
 "))['total'];
 
 $lowStock = mysqli_query($conn, "
     SELECT * FROM products 
     WHERE quantity <= low_stock_limit 
+    AND is_deleted = 0
     ORDER BY quantity ASC
 ");
 
@@ -21,6 +27,7 @@ $products = mysqli_query($conn, "
     SELECT p.*, c.category_name 
     FROM products p 
     LEFT JOIN categories c ON p.category_id = c.category_id 
+    WHERE p.is_deleted = 0
     ORDER BY p.product_id DESC
 ");
 ?>
