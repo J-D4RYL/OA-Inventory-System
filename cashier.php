@@ -9,17 +9,24 @@ $receipt = null;
 
 /* SAVE SALE */
 if (isset($_POST['sell'])) {
-    $product_id = $_POST['product_id'];
-    $quantity = $_POST['quantity'];
-    $payment_method = $_POST['payment_method'];
+    $product_id = (int) $_POST['product_id'];
+    $quantity = (int) $_POST['quantity'];
+    $payment_method = mysqli_real_escape_string($conn, trim($_POST['payment_method']));
+    $allowedPayments = ['Cash', 'GCash', 'Card'];
 
     if (empty($product_id) || empty($quantity) || empty($payment_method)) {
         $error = "Please complete all fields.";
     } elseif ($quantity <= 0) {
         $error = "Quantity must be greater than zero.";
+    } elseif (!in_array($payment_method, $allowedPayments)) {
+        $error = "Invalid payment method.";
     } else {
         try {
-            $productQuery = mysqli_query($conn, "SELECT * FROM products WHERE product_id = '$product_id'");
+            $productQuery = mysqli_query($conn, "
+                SELECT * FROM products 
+                WHERE product_id = '$product_id' 
+                AND is_deleted = 0
+            ");
             $product = mysqli_fetch_assoc($productQuery);
 
             if (!$product) {
@@ -30,7 +37,7 @@ if (isset($_POST['sell'])) {
                 throw new Exception("Not enough stock available.");
             }
 
-            $price = $product['price'];
+            $price = (float) $product['price'];
             $subtotal = $price * $quantity;
 
             mysqli_query($conn, "
@@ -62,7 +69,7 @@ if (isset($_POST['sell'])) {
 
 /* DISPLAY RECEIPT */
 if (isset($_GET['receipt_id'])) {
-    $receipt_id = $_GET['receipt_id'];
+    $receipt_id = (int) $_GET['receipt_id'];
 
     $receiptQuery = mysqli_query($conn, "
         SELECT s.sale_id, s.sale_date, s.payment_method, s.total_amount,
@@ -103,11 +110,11 @@ $products = mysqli_query($conn, "
     <h1>Cashier</h1>
 
     <?php if ($message != "") { ?>
-        <p class="success"><?php echo $message; ?></p>
+        <p class="success"><?php echo htmlspecialchars($message); ?></p>
     <?php } ?>
 
     <?php if ($error != "") { ?>
-        <p class="error"><?php echo $error; ?></p>
+        <p class="error"><?php echo htmlspecialchars($error); ?></p>
     <?php } ?>
 
     <form method="POST">
@@ -118,11 +125,13 @@ $products = mysqli_query($conn, "
             <?php while ($row = mysqli_fetch_assoc($products)) { ?>
                 <option value="<?php echo $row['product_id']; ?>">
                     <?php 
-                    echo $row['product_name'] . " - " . 
-                         $row['size'] . " - " . 
-                         $row['color'] . " - ₱" . 
-                         number_format($row['price'], 2) . 
-                         " - Stock: " . $row['quantity']; 
+                    echo htmlspecialchars(
+                        $row['product_name'] . " - " . 
+                        $row['size'] . " - " . 
+                        $row['color'] . " - ₱" . 
+                        number_format($row['price'], 2) . 
+                        " - Stock: " . (int)$row['quantity']
+                    ); 
                     ?>
                 </option>
             <?php } ?>
@@ -149,16 +158,16 @@ $products = mysqli_query($conn, "
 
         <div id="receiptContent">
             <h3>OA Clothing</h3>
-            <p><b>Receipt No:</b> <?php echo $receipt['sale_id']; ?></p>
-            <p><b>Date:</b> <?php echo $receipt['sale_date']; ?></p>
-            <p><b>Payment:</b> <?php echo $receipt['payment_method']; ?></p>
+            <p><b>Receipt No:</b> <?php echo htmlspecialchars($receipt['sale_id']); ?></p>
+            <p><b>Date:</b> <?php echo htmlspecialchars($receipt['sale_date']); ?></p>
+            <p><b>Payment:</b> <?php echo htmlspecialchars($receipt['payment_method']); ?></p>
 
             <hr>
 
-            <p><b>Product:</b> <?php echo $receipt['product_name']; ?></p>
-            <p><b>Size:</b> <?php echo $receipt['size']; ?></p>
-            <p><b>Color:</b> <?php echo $receipt['color']; ?></p>
-            <p><b>Quantity:</b> <?php echo $receipt['quantity_sold']; ?></p>
+            <p><b>Product:</b> <?php echo htmlspecialchars($receipt['product_name']); ?></p>
+            <p><b>Size:</b> <?php echo htmlspecialchars($receipt['size']); ?></p>
+            <p><b>Color:</b> <?php echo htmlspecialchars($receipt['color']); ?></p>
+            <p><b>Quantity:</b> <?php echo (int)$receipt['quantity_sold']; ?></p>
             <p><b>Price:</b> ₱<?php echo number_format($receipt['price'], 2); ?></p>
 
             <hr>

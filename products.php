@@ -16,28 +16,47 @@ if (isset($_GET['msg'])) {
 
 // ADD PRODUCT
 if (isset($_POST['add'])) {
-    $name = mysqli_real_escape_string($conn, $_POST['product_name']);
+    $name = mysqli_real_escape_string($conn, trim($_POST['product_name']));
     $category = $_POST['category_id'];
-    $size = mysqli_real_escape_string($conn, $_POST['size']);
-    $color = mysqli_real_escape_string($conn, $_POST['color']);
-    $quantity = $_POST['quantity'];
-    $price = $_POST['price'];
-    $low = $_POST['low_stock_limit'];
+    $size = mysqli_real_escape_string($conn, trim($_POST['size']));
+    $color = mysqli_real_escape_string($conn, trim($_POST['color']));
+    $quantity = (int) $_POST['quantity'];
+    $price = (float) $_POST['price'];
+    $low = (int) $_POST['low_stock_limit'];
 
-    $insert = mysqli_query($conn, "INSERT INTO products 
-        (product_name, category_id, size, color, quantity, price, low_stock_limit)
-        VALUES ('$name', '$category', '$size', '$color', '$quantity', '$price', '$low')");
-
-    if ($insert) {
-        $message = "Product '$name' added successfully!";
-        $popupTitle = "Product Added";
-        $popupType = "success";
-    } else {
-        $message = "Error adding product.";
-        $popupTitle = "Error";
+    if (empty($name) || empty($category) || empty($size) || empty($color)) {
+        $message = "Please complete all product fields.";
+        $popupTitle = "Invalid Input";
         $popupType = "error";
+    } elseif ($quantity < 1) {
+        $message = "Quantity cannot be negative.";
+        $popupTitle = "Invalid Quantity";
+        $popupType = "error";
+    } elseif ($price < 1) {
+        $message = "Price must be greater than zero.";
+        $popupTitle = "Invalid Price";
+        $popupType = "error";
+    } elseif ($low < 0) {
+        $message = "Low stock limit cannot be negative.";
+        $popupTitle = "Invalid Low Stock";
+        $popupType = "error";
+    } else {
+        $insert = mysqli_query($conn, "INSERT INTO products 
+            (product_name, category_id, size, color, quantity, price, low_stock_limit)
+            VALUES ('$name', '$category', '$size', '$color', '$quantity', '$price', '$low')");
+
+        if ($insert) {
+            $message = "Product '$name' added successfully!";
+            $popupTitle = "Product Added";
+            $popupType = "success";
+        } else {
+            $message = "Error adding product.";
+            $popupTitle = "Error";
+            $popupType = "error";
+        }
     }
 }
+
 
 // FETCH CATEGORIES
 $categories = mysqli_query($conn, "SELECT * FROM categories ORDER BY category_name ASC");
@@ -126,19 +145,19 @@ if (!empty($search)) {
         </select>
 
         <select name="size" required>
-            <option value="S">S</option>
-            <option value="M">M</option>
-            <option value="L">L</option>
-            <option value="XL">XL</option>
-        </select>
+    <option value="S">S</option>
+    <option value="M">M</option>
+    <option value="L">L</option>
+    <option value="XL">XL</option>
+</select>
 
-        <input type="text" name="color" placeholder="Color" required>
-        <input type="number" name="quantity" placeholder="Quantity" required>
-        <input type="number" step="0.01" name="price" placeholder="Price" required>
+<input type="text" name="color" placeholder="Color" required>
 
+<input type="number" name="quantity" placeholder="Quantity" min="1" required>
+<input type="number" step="0.01" name="price" placeholder="Price" min="1" required>
         <label>Low Stock Alert</label>
-        <input type="number" name="low_stock_limit" placeholder="Low Stock Limit" value="5" required>
-
+        <input type="number" name="low_stock_limit" placeholder="Low Stock Limit" value="5" min="0" required>
+        
         <button type="submit" name="add">Add Product</button>
     </form>
 
